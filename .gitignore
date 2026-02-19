@@ -1,0 +1,31 @@
+# Environment
+.env
+*.pyc
+__pycache__/
+.venv/
+venv/
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Data / Output
+shared/data/*.db
+shared/logs/*.log
+shared/results.json
+
+# Docker
+sandbox/tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+backend/shared/logs/app.log
+backend.log
+frontend.log
