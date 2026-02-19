@@ -20,7 +20,7 @@ export default function RunFormWidget() {
         <CyberWidget colorTheme="red" headerTitle="01" headerCode="Cyberpunk Tech 2025" className="h-full">
             <div className="flex h-full flex-col lg:flex-row gap-6">
                 {/* Decorative Side Panel resembling the cybergirl illustration side */}
-                <div className="lg:w-1/3 relative flex flex-col items-center justify-between border-b-2 lg:border-b-0 lg:border-r-2 border-black/20 pb-6 lg:pb-0 lg:pr-6">
+                <div className="hidden sm:flex lg:w-1/3 relative flex-col items-center justify-between border-b-2 lg:border-b-0 lg:border-r-2 border-black/20 pb-6 lg:pb-0 lg:pr-6">
                     <div className="absolute inset-0 bg-black/10 mix-blend-multiply rounded-xl z-0 overflow-hidden">
                         <GridLines />
                     </div>
@@ -53,7 +53,7 @@ export default function RunFormWidget() {
                         }}
                         className="space-y-6"
                     >
-                        <div className="font-tech text-2xl font-bold tracking-wider uppercase border-l-4 border-black pl-3 mb-6">
+                        <div className="font-tech text-lg sm:text-2xl font-bold tracking-wider uppercase border-l-4 border-black pl-3 mb-4 sm:mb-6">
                             Initiate <br /> Link Sequence
                         </div>
 

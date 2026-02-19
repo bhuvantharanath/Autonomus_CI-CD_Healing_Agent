@@ -45,118 +45,112 @@ export default function CyberDashboard() {
             </header>
 
             {/* Main Dashboard Layout */}
-            <main className="w-full max-w-7xl relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <main className="w-full max-w-7xl relative z-10 flex flex-col gap-6">
 
-                {/* Left Column (Fixes Table spanning 5 cols on lg screens, taking up the left side) */}
-                <div className="lg:col-span-6 xl:col-span-5 w-full flex flex-col gap-6 lg:h-[calc(100vh-140px)] lg:sticky lg:top-[100px]">
-                    {/* Only show table if we have results, otherwise show awaiting input */}
-                    {results ? (
-                        <div className="flex-1 min-h-[400px] lg:min-h-0 h-full">
-                            <FixesTableWidget fixes={results.fixes} />
-                        </div>
-                    ) : (
-                        <div className="flex-1 h-full flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-[24px] bg-white/5 relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-noise opacity-20 pointer-events-none mix-blend-overlay"></div>
-                            <div className="text-center font-mono opacity-30 group-hover:opacity-50 transition-opacity">
-                                <div className="text-4xl mb-2">[-_-]</div>
-                                <div className="uppercase tracking-widest">Awaiting Input...</div>
-                                <div className="text-[10px] mt-4 max-w-xs mx-auto">
-                                    INITIALIZE LINK SEQUENCE TO COMMENCE SYSTEM SCAN AND HEALING PROCEDURES
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                {/* ── ROW 1: Run Form (always visible, full width) ─── */}
+                <div className="w-full">
+                    <RunFormWidget />
                 </div>
 
-                {/* Right Column (2x2 Grid spanning remaining cols on lg screens) */}
-                <div className="lg:col-span-6 xl:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-
-                    {/* Top Left (Run Form) - Always visible */}
-                    <div className="col-span-1 md:col-span-2">
-                        <RunFormWidget />
+                {/* Error Banner */}
+                {error && (
+                    <div className="w-full flex items-center gap-3 border-2 border-red-500 bg-red-500/10 rounded-[16px] p-4 text-red-400 font-mono text-sm">
+                        <AlertTriangle size={20} className="flex-shrink-0" />
+                        <span>{error}</span>
                     </div>
+                )}
 
-                    {/* Error Banner */}
-                    {error && (
-                        <div className="col-span-1 md:col-span-2 flex items-center gap-3 border-2 border-red-500 bg-red-500/10 rounded-[16px] p-4 text-red-400 font-mono text-sm">
-                            <AlertTriangle size={20} className="flex-shrink-0" />
-                            <span>{error}</span>
-                        </div>
-                    )}
+                {/* Live Progress Panel - shown while running */}
+                {!results && (polling || status?.status === "running" || status?.status === "queued") && (
+                    <div className="w-full border-2 border-white/20 rounded-[24px] bg-white/5 p-4 sm:p-6 space-y-4 relative overflow-hidden">
+                        <div className="bg-noise absolute inset-0 pointer-events-none opacity-10 mix-blend-overlay" />
+                        <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-tech text-base sm:text-lg font-bold uppercase tracking-widest flex items-center gap-2">
+                                    <Loader2 size={18} className="animate-spin text-red-500" />
+                                    Live Status
+                                </h3>
+                                <span className="font-mono text-xs border border-white/20 px-3 py-1 rounded-sm uppercase tracking-widest animate-pulse">
+                                    {status?.status ?? "connecting..."}
+                                </span>
+                            </div>
 
-                    {/* Live Progress Panel - shown while running */}
-                    {!results && (polling || status?.status === "running" || status?.status === "queued") && (
-                        <div className="col-span-1 md:col-span-2 border-2 border-white/20 rounded-[24px] bg-white/5 p-6 space-y-4 relative overflow-hidden">
-                            <div className="bg-noise absolute inset-0 pointer-events-none opacity-10 mix-blend-overlay" />
-                            <div className="relative z-10">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-tech text-lg font-bold uppercase tracking-widest flex items-center gap-2">
-                                        <Loader2 size={18} className="animate-spin text-red-500" />
-                                        Live Status
-                                    </h3>
-                                    <span className="font-mono text-xs border border-white/20 px-3 py-1 rounded-sm uppercase tracking-widest animate-pulse">
-                                        {status?.status ?? "connecting..."}
-                                    </span>
-                                </div>
-
-                                {status && (
-                                    <>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center font-mono text-sm mb-4">
-                                            <div className="border border-white/10 p-3 rounded-sm">
-                                                <div className="text-2xl font-bold text-white">{status.current_iteration}/{status.max_iterations || "?"}</div>
-                                                <div className="text-xs text-white/50 uppercase mt-1">Iteration</div>
-                                            </div>
-                                            <div className="border border-white/10 p-3 rounded-sm">
-                                                <div className="text-2xl font-bold text-white">{status.total_failures_detected}</div>
-                                                <div className="text-xs text-white/50 uppercase mt-1">Failures</div>
-                                            </div>
-                                            <div className="border border-white/10 p-3 rounded-sm">
-                                                <div className="text-2xl font-bold text-white">{status.total_fixes_applied}</div>
-                                                <div className="text-xs text-white/50 uppercase mt-1">Fixes</div>
-                                            </div>
-                                            <div className="border border-white/10 p-3 rounded-sm">
-                                                <div className="text-2xl font-bold text-white">{status.runtime_seconds.toFixed(1)}s</div>
-                                                <div className="text-xs text-white/50 uppercase mt-1">Runtime</div>
-                                            </div>
+                            {status && (
+                                <>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono text-sm mb-4">
+                                        <div className="border border-white/10 p-3 rounded-sm">
+                                            <div className="text-xl sm:text-2xl font-bold text-white">{status.current_iteration}/{status.max_iterations || "?"}</div>
+                                            <div className="text-xs text-white/50 uppercase mt-1">Iteration</div>
                                         </div>
+                                        <div className="border border-white/10 p-3 rounded-sm">
+                                            <div className="text-xl sm:text-2xl font-bold text-white">{status.total_failures_detected}</div>
+                                            <div className="text-xs text-white/50 uppercase mt-1">Failures</div>
+                                        </div>
+                                        <div className="border border-white/10 p-3 rounded-sm">
+                                            <div className="text-xl sm:text-2xl font-bold text-white">{status.total_fixes_applied}</div>
+                                            <div className="text-xs text-white/50 uppercase mt-1">Fixes</div>
+                                        </div>
+                                        <div className="border border-white/10 p-3 rounded-sm">
+                                            <div className="text-xl sm:text-2xl font-bold text-white">{status.runtime_seconds.toFixed(1)}s</div>
+                                            <div className="text-xs text-white/50 uppercase mt-1">Runtime</div>
+                                        </div>
+                                    </div>
 
-                                        {status.current_step && (
-                                            <div className="font-mono text-xs text-white/60 border-t border-white/10 pt-3">
-                                                <span className="text-red-400">STEP &gt;</span> {status.current_step}
-                                            </div>
-                                        )}
+                                    {status.current_step && (
+                                        <div className="font-mono text-xs text-white/60 border-t border-white/10 pt-3">
+                                            <span className="text-red-400">STEP &gt;</span> {status.current_step}
+                                        </div>
+                                    )}
 
-                                        {status.latest_message && (
-                                            <div className="mt-2 font-mono text-xs text-white/40 bg-black/20 p-2 rounded-sm max-h-24 overflow-y-auto break-all">
-                                                {status.latest_message}
-                                            </div>
-                                        )}
-                                    </>
-                                )}
+                                    {status.latest_message && (
+                                        <div className="mt-2 font-mono text-xs text-white/40 bg-black/20 p-2 rounded-sm max-h-24 overflow-y-auto break-all">
+                                            {status.latest_message}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Awaiting-input placeholder when no results yet */}
+                {!results && !polling && status?.status !== "running" && status?.status !== "queued" && (
+                    <div className="w-full min-h-[200px] flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-[24px] bg-white/5 relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-noise opacity-20 pointer-events-none mix-blend-overlay"></div>
+                        <div className="text-center font-mono opacity-30 group-hover:opacity-50 transition-opacity">
+                            <div className="text-4xl mb-2">[-_-]</div>
+                            <div className="uppercase tracking-widest">Awaiting Input...</div>
+                            <div className="text-[10px] mt-4 max-w-xs mx-auto">
+                                INITIALIZE LINK SEQUENCE TO COMMENCE SYSTEM SCAN AND HEALING PROCEDURES
                             </div>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {/* Dynamic State Space - if results exist show them */}
-                    {results && (
-                        <>
-                            {/* Run Summary (Orange) */}
-                            <div className="col-span-1">
-                                <RunSummaryWidget r={results} />
-                            </div>
+                {/* ── ROW 2: Summary + Score side-by-side ─────────── */}
+                {results && (
+                    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Run Summary (Orange) */}
+                        <RunSummaryWidget r={results} />
 
-                            {/* Score Widget (Green) */}
-                            <div className="col-span-1">
-                                <ScoreWidget score={results.score} />
-                            </div>
+                        {/* Score Widget (Green) */}
+                        <ScoreWidget score={results.score} />
+                    </div>
+                )}
 
-                            {/* Timeline Widget (Grey) */}
-                            <div className="col-span-1 md:col-span-2">
-                                <TimelineWidget fixes={results.fixes} timeline={results.ci_timeline} maxIterations={status?.max_iterations} />
-                            </div>
-                        </>
-                    )}
-                </div>
+                {/* ── ROW 3: Fixes Table (FIX DB) — taller ───────── */}
+                {results && (
+                    <div className="w-full min-h-[480px] sm:min-h-[540px]">
+                        <FixesTableWidget fixes={results.fixes} />
+                    </div>
+                )}
+
+                {/* ── ROW 4: Timeline (Iteration Matrix) — full width */}
+                {results && (
+                    <div className="w-full">
+                        <TimelineWidget fixes={results.fixes} timeline={results.ci_timeline} maxIterations={status?.max_iterations} />
+                    </div>
+                )}
 
             </main>
         </div>

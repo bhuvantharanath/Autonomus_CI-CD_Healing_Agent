@@ -22,20 +22,20 @@ export function CyberWidget({ children, colorTheme, headerTitle, headerCode, foo
 
     return (
         <div
-            className={`relative overflow-hidden rounded-[24px] border-4 p-6 shadow-xl ${currentTheme} ${className}`}
+            className={`relative overflow-hidden rounded-[16px] sm:rounded-[24px] border-2 sm:border-4 p-3 sm:p-6 shadow-xl ${currentTheme} ${className}`}
         >
             {/* Noise overlay */}
-            <div className="bg-noise absolute inset-0 pointer-events-none opacity-20 mix-blend-multiply rounded-[20px]" />
+            <div className="bg-noise absolute inset-0 pointer-events-none opacity-20 mix-blend-multiply rounded-[14px] sm:rounded-[20px]" />
 
             {/* Top Header Section */}
             {(headerTitle || headerCode) && (
-                <div className="mb-4 flex items-center justify-between border-b-2 border-black/20 pb-2 relative z-10">
-                    <div className="font-tech text-3xl font-bold uppercase tracking-widest flex items-center gap-2">
+                <div className="mb-3 sm:mb-4 flex items-center justify-between border-b-2 border-black/20 pb-2 relative z-10">
+                    <div className="font-tech text-xl sm:text-3xl font-bold uppercase tracking-widest flex items-center gap-2">
                         {headerTitle}
                         {colorTheme === 'orange' && <span className="w-2 h-2 rounded-full bg-orange-700/50 block ml-1" />}
                     </div>
                     {headerCode && (
-                        <div className="font-mono text-xs uppercase border border-black/20 px-2 py-0.5 rounded-sm">
+                        <div className="font-mono text-[10px] sm:text-xs uppercase border border-black/20 px-2 py-0.5 rounded-sm">
                             {headerCode}
                         </div>
                     )}
@@ -49,8 +49,8 @@ export function CyberWidget({ children, colorTheme, headerTitle, headerCode, foo
 
             {/* Footer Section */}
             {footerCode && (
-                <div className="mt-6 flex items-center justify-between border-t-2 border-black/20 pt-3 relative z-10">
-                    <div className="font-tech font-bold text-lg">{footerCode}</div>
+                <div className="mt-4 sm:mt-6 flex items-center justify-between border-t-2 border-black/20 pt-3 relative z-10">
+                    <div className="font-tech font-bold text-sm sm:text-lg">{footerCode}</div>
                     <div className="flex items-center gap-2">
                         <BarCode mini />
                         <div className="font-tech text-xs tracking-widest italic opacity-70 flex items-center gap-2">

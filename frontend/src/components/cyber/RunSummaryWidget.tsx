@@ -11,7 +11,7 @@ export default function RunSummaryWidget({ r }: { r: FinalResults }) {
                     <ArrowUpRight strokeWidth={4} className="w-full h-full text-black opacity-80" />
                 </div>
 
-                <div className="flex gap-4 mb-6 relative z-10 w-2/3">
+                <div className="hidden sm:flex gap-4 mb-6 relative z-10 w-2/3">
                     <div className="flex flex-col gap-[2px]">
                         <div className="h-10 w-2 bg-black/80"></div>
                         <div className="h-4 w-2 bg-red-800/80"></div>
@@ -37,60 +37,60 @@ export default function RunSummaryWidget({ r }: { r: FinalResults }) {
                     </div>
                 </div>
 
-                <div className="border border-black p-3 space-y-2 mt-4">
-                    <div className="flex items-center justify-between border-b border-black/20 pb-1">
-                        <span className="font-tech text-xs uppercase w-24">REPO</span>
-                        <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
-                            <span className="text-[10px]">▶</span>
-                            <span className="font-mono border border-black px-2 text-xs truncate max-w-[220px]" title={r.repository_url}>{r.repository_url}</span>
+                <div className="border border-black p-2 sm:p-3 space-y-2 mt-4 text-xs sm:text-sm">
+                    <div className="flex items-center justify-between border-b border-black/20 pb-1 gap-2">
+                        <span className="font-tech text-[10px] sm:text-xs uppercase w-16 sm:w-24 flex-shrink-0">REPO</span>
+                        <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1 justify-end">
+                            <span className="text-[10px] flex-shrink-0">▶</span>
+                            <span className="font-mono border border-black px-1 sm:px-2 text-[10px] sm:text-xs truncate max-w-[120px] sm:max-w-[220px]" title={r.repository_url}>{r.repository_url}</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-black/20 pb-1">
-                        <span className="font-tech text-xs uppercase w-24">TEAM</span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px]">▶</span>
-                            <span className="font-mono border border-black px-2">{r.team_name}</span>
+                    <div className="flex items-center justify-between border-b border-black/20 pb-1 gap-2">
+                        <span className="font-tech text-[10px] sm:text-xs uppercase w-16 sm:w-24 flex-shrink-0">TEAM</span>
+                        <div className="flex items-center gap-1 sm:gap-2 min-w-0 justify-end">
+                            <span className="text-[10px] flex-shrink-0">▶</span>
+                            <span className="font-mono border border-black px-1 sm:px-2 truncate max-w-[140px] sm:max-w-none">{r.team_name}</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-black/20 pb-1">
-                        <span className="font-tech text-xs uppercase w-24">LEADER</span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px]">▶</span>
-                            <span className="font-mono border border-black px-2">{r.leader_name}</span>
+                    <div className="flex items-center justify-between border-b border-black/20 pb-1 gap-2">
+                        <span className="font-tech text-[10px] sm:text-xs uppercase w-16 sm:w-24 flex-shrink-0">LEADER</span>
+                        <div className="flex items-center gap-1 sm:gap-2 min-w-0 justify-end">
+                            <span className="text-[10px] flex-shrink-0">▶</span>
+                            <span className="font-mono border border-black px-1 sm:px-2 truncate max-w-[140px] sm:max-w-none">{r.leader_name}</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-black/20 pb-1">
-                        <span className="font-tech text-xs uppercase w-24">BRANCH</span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px]">▶</span>
-                            <span className="font-mono border border-black px-2">{r.branch}</span>
+                    <div className="flex items-center justify-between border-b border-black/20 pb-1 gap-2">
+                        <span className="font-tech text-[10px] sm:text-xs uppercase w-16 sm:w-24 flex-shrink-0">BRANCH</span>
+                        <div className="flex items-center gap-1 sm:gap-2 min-w-0 justify-end">
+                            <span className="text-[10px] flex-shrink-0">▶</span>
+                            <span className="font-mono border border-black px-1 sm:px-2 truncate max-w-[120px] sm:max-w-none">{r.branch}</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-black/20 pb-1">
-                        <span className="font-tech text-xs uppercase w-24">BUGS FIXED</span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px]">▶</span>
-                            <span className="font-mono border border-black px-2">{r.total_fixes_applied} / {r.total_failures_detected}</span>
+                    <div className="flex items-center justify-between border-b border-black/20 pb-1 gap-2">
+                        <span className="font-tech text-[10px] sm:text-xs uppercase w-16 sm:w-24 flex-shrink-0">BUGS</span>
+                        <div className="flex items-center gap-1 sm:gap-2">
+                            <span className="text-[10px] flex-shrink-0">▶</span>
+                            <span className="font-mono border border-black px-1 sm:px-2">{r.total_fixes_applied} / {r.total_failures_detected}</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-black/20 pb-1">
-                        <span className="font-tech text-xs uppercase w-24">TIME (secs)</span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px]">▶</span>
-                            <span className="font-mono border border-black px-2">{r.runtime_seconds.toFixed(2)}</span>
+                    <div className="flex items-center justify-between border-b border-black/20 pb-1 gap-2">
+                        <span className="font-tech text-[10px] sm:text-xs uppercase w-16 sm:w-24 flex-shrink-0">TIME</span>
+                        <div className="flex items-center gap-1 sm:gap-2">
+                            <span className="text-[10px] flex-shrink-0">▶</span>
+                            <span className="font-mono border border-black px-1 sm:px-2">{r.runtime_seconds.toFixed(2)}s</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-1">
-                        <span className="font-tech text-xs uppercase w-24">FINAL CI</span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px]">▶</span>
-                            <span className={`font-mono border px-2 ${r.final_ci_status === "PASSED" ? "border-green-800 text-green-900 bg-green-500/20" : "border-red-800 text-red-900 bg-red-500/20"}`}>
+                    <div className="flex items-center justify-between pt-1 gap-2">
+                        <span className="font-tech text-[10px] sm:text-xs uppercase w-16 sm:w-24 flex-shrink-0">CI</span>
+                        <div className="flex items-center gap-1 sm:gap-2">
+                            <span className="text-[10px] flex-shrink-0">▶</span>
+                            <span className={`font-mono border px-1 sm:px-2 text-xs ${r.final_ci_status === "PASSED" ? "border-green-800 text-green-900 bg-green-500/20" : "border-red-800 text-red-900 bg-red-500/20"}`}>
                                 {r.final_ci_status}
                             </span>
                         </div>

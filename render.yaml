@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: self-healing-backend
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.7"
+      - key: PYTHONPATH
+        value: /opt/render/project/src:/opt/render/project/src/backend
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: GEMINI_API_KEY
+        sync: false          # set manually in Render dashboard
+      - key: GITHUB_TOKEN
+        sync: false          # set manually in Render dashboard
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+      - key: GEMINI_API_BASE
+        value: https://generativelanguage.googleapis.com/v1beta/openai
+      - key: LOG_LEVEL
+        value: INFO
