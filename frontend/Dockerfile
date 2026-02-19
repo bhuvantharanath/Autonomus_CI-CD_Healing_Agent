@@ -1,6 +1,11 @@
+# ── Stage 1: Build ──────────────────────────────────────────
 FROM node:18-slim AS build
 
 WORKDIR /app
+
+# Build-time arg — set VITE_API_URL so the React app knows the backend
+ARG VITE_API_URL=http://localhost:8000
+ENV VITE_API_URL=$VITE_API_URL
 
 # Install dependencies (cache layer)
 COPY package.json package-lock.json* ./
@@ -10,15 +15,34 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Production stage — serve with a lightweight static server
-FROM node:18-slim AS production
+# ── Stage 2: Serve with nginx ───────────────────────────────
+FROM nginx:alpine AS production
 
-WORKDIR /app
+# Remove default nginx site
+RUN rm -rf /usr/share/nginx/html/*
 
-RUN npm install -g serve
+# Copy built assets
+COPY --from=build /app/dist /usr/share/nginx/html
 
-COPY --from=build /app/dist /app/dist
+# Write nginx config template with $PORT placeholder
+RUN printf 'server {\n\
+    listen ${PORT};\n\
+    listen [::]:${PORT};\n\
+    root /usr/share/nginx/html;\n\
+    index index.html;\n\
+    location / {\n\
+        try_files $uri $uri/ /index.html;\n\
+    }\n\
+    location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {\n\
+        expires 1y;\n\
+        add_header Cache-Control "public, immutable";\n\
+    }\n\
+}\n' > /etc/nginx/templates/default.conf.template
 
-EXPOSE 5173
+# Default port for local dev; Render overrides via $PORT
+ENV PORT=80
 
-CMD ["serve", "-s", "dist", "-l", "5173"]
+EXPOSE 80
+
+# envsubst replaces ${PORT} in the template, then starts nginx
+CMD sh -c "envsubst '\$PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

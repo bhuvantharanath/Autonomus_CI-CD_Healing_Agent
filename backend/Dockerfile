@@ -17,4 +17,6 @@ COPY sandbox/ /app/sandbox/
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Render injects $PORT at runtime; default to 8000 for local dev
+ENV PORT=8000
+CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT
