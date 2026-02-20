@@ -83,7 +83,10 @@ export interface FinalResults {
 
 // ── Store ───────────────────────────────────────────────────────────
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+const API_BASE =
+  (window as any).__ENV__?.VITE_API_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:8000";
 
 interface RunStore {
   // Form

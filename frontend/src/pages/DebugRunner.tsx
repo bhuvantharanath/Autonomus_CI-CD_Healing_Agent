@@ -16,7 +16,10 @@ interface StatusPayload {
   runtime_seconds: number;
 }
 
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+const API =
+  (window as any).__ENV__?.VITE_API_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:8000";
 
 /* ── Component ─────────────────────────────────────────────────────── */
 
