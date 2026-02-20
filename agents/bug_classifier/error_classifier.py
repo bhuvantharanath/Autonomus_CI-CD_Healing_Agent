@@ -477,9 +477,20 @@ async def _llm_classify(lines: list[str]) -> list[BugReport]:
                     await _asyncio.sleep(delay)
                     continue
 
+                if resp.status_code != 200:
+                    logger.error(
+                        "LLM classifier HTTP %d from %s: %s",
+                        resp.status_code, base_url,
+                        resp.text[:500],
+                    )
+
                 resp.raise_for_status()
                 data = resp.json()
                 content = data["choices"][0]["message"]["content"].strip()
+                logger.info(
+                    "LLM classifier returned %d chars from %s/%s",
+                    len(content), base_url, model,
+                )
 
                 # Strip markdown fences if the model wraps anyway
                 if content.startswith("```"):

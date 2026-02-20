@@ -1,7 +1,12 @@
 FROM python:3.11-slim
 
 # git is required for clone/branch/commit/push operations
-RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+# Node.js is needed for JS/TS syntax checking (node --check)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        nodejs \
+        npm \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set default git identity so commits work inside the container
 RUN git config --global user.email "self-healing-bot@automated.dev" \

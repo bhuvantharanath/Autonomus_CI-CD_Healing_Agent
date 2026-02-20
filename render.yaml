@@ -17,9 +17,9 @@ services:
       - key: GITHUB_TOKEN
         sync: false              # set in Render dashboard
       - key: GEMINI_MODEL
-        value: gemini-2.0-flash
+        value: google/gemini-2.0-flash-001
       - key: GEMINI_API_BASE
-        value: https://generativelanguage.googleapis.com/v1beta/openai
+        value: https://openrouter.ai/api/v1
       - key: LOG_LEVEL
         value: INFO
 

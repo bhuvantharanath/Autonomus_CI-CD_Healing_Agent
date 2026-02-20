@@ -469,9 +469,28 @@ async def run_reasoning_loop(
             )
             break
 
+        # ── No-progress guard ────────────────────────────────────────
+        # If no patches were applied this iteration (e.g. LLM unavailable)
+        # AND no new bugs were found, stop — retrying won't help.
+        # But if patches WERE applied, always allow the next iteration
+        # (the fix may have resolved some bugs, changing the landscape).
+        if report.patches_applied == 0 and report.verdict in (
+            "no_patches_applied", "no_actionable_fixes", "no_new_failures",
+        ):
+            logger.info(
+                "No progress in iteration %d (verdict=%s) — stopping loop.",
+                current_iteration, report.verdict,
+            )
+            break
+
         if not shared.get("should_continue", False):
             logger.info("Verifier says stop — halting loop.")
             break
+
+        # Clear _prev_failure_keys between outer iterations so the
+        # classifier doesn't false-positive on "no_new_failures" when
+        # the fix strategy has been escalated (deterministic → LLM).
+        shared.pop("_prev_failure_keys", None)
 
     # ── Final verdict ────────────────────────────────────────────────
     final_passed = iterations[-1].all_passed if iterations else False
