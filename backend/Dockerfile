@@ -3,6 +3,10 @@ FROM python:3.11-slim
 # git is required for clone/branch/commit/push operations
 RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 
+# Set default git identity so commits work inside the container
+RUN git config --global user.email "self-healing-bot@automated.dev" \
+ && git config --global user.name "Self-Healing Bot"
+
 WORKDIR /app
 
 # Copy and install requirements first (cache layer)
