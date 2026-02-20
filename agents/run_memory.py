@@ -47,6 +47,8 @@ class FixRecord:
     change_summary: str
     commit_hash: str
     iteration: int
+    bug_type: str = ""
+    failure_message: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -55,6 +57,8 @@ class FixRecord:
             "change_summary": self.change_summary,
             "commit_hash": self.commit_hash,
             "iteration": self.iteration,
+            "bug_type": self.bug_type,
+            "failure_message": self.failure_message,
         }
 
 
@@ -159,6 +163,8 @@ class RunMemory:
                 change_summary=patch.get("description", ""),
                 commit_hash=commit_hash,
                 iteration=iteration,
+                bug_type=bug.get("bug_type", ""),
+                failure_message=bug.get("message", ""),
             )
             self._fixes.append(record)
 

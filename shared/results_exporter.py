@@ -211,47 +211,128 @@ def _normalize_for_match(filepath: str) -> str:
     return _strip_temp_prefix(filepath)
 
 
-def _infer_bug_type(fix, memory: RunMemory) -> str:
-    """Match a fix back to its failure record to extract bug_type."""
-    fix_file = _normalize_for_match(fix.file)
-    # Exact match on normalized file + line
-    for failure in memory.failures:
-        if _normalize_for_match(failure.file) == fix_file and failure.line == fix.line:
-            return failure.bug_type
-    # Fallback: same file, any line
-    for failure in memory.failures:
-        if _normalize_for_match(failure.file) == fix_file:
-            return failure.bug_type
-    # Fallback: basename match
-    from pathlib import Path as _Path
-    fix_basename = _Path(fix_file).name
-    for failure in memory.failures:
-        if _Path(failure.file).name == fix_basename and failure.line == fix.line:
-            return failure.bug_type
-    for failure in memory.failures:
-        if _Path(failure.file).name == fix_basename:
-            return failure.bug_type
+def _infer_bug_type_from_text(text: str) -> str:
+    """Infer bug_type from descriptive text (e.g. commit message or description).
+
+    Maps common keywords in fix descriptions to their bug type categories.
+    """
+    if not text:
+        return "unknown"
+    t = text.lower()
+    # Indentation
+    if any(kw in t for kw in ("indent", "indentation", "alignment", "tab error")):
+        return "INDENTATION"
+    # Syntax
+    if any(kw in t for kw in (
+        "syntax", "colon", "semicolon", "bracket", "paren",
+        "unexpected eof", "missing :", "missing ;", "invalid syntax",
+    )):
+        return "SYNTAX"
+    # Import
+    if any(kw in t for kw in (
+        "import", "module not found", "modulenotfound",
+        "no module named", "cannot find module",
+    )):
+        # Distinguish unused-import (LINTING) from missing-import (IMPORT)
+        if "unused" in t or "imported but unused" in t or "f401" in t:
+            return "LINTING"
+        return "IMPORT"
+    # Type error
+    if any(kw in t for kw in (
+        "type error", "typeerror", "type mismatch",
+        "is not a function", "not callable",
+    )):
+        return "TYPE_ERROR"
+    # Linting
+    if any(kw in t for kw in (
+        "lint", "unused", "f401", "style", "formatting",
+    )):
+        return "LINTING"
+    # Logic
+    if any(kw in t for kw in (
+        "logic", "assertion", "assert", "zero.?divis", "index.?error",
+        "bounds", "recursion", "wrap.*try", "try/except",
+        "expected.*actual", "wrong operator",
+    )):
+        return "LOGIC"
+    # LLM-generated fix descriptions often mention the fix type
+    if "llm fix" in t or "search/replace" in t:
+        # Check file extension for a rough guess
+        return "SYNTAX"  # most common for LLM fixes
     return "unknown"
 
 
+def _infer_bug_type(fix, memory: RunMemory) -> str:
+    """Match a fix back to its failure record to extract bug_type.
+
+    Priority:
+      1. Direct bug_type stored on FixRecord (from classified bug)
+      2. Exact file + line match against failure records
+      3. Same file match against failure records
+      4. Basename match against failure records
+      5. Text-based inference from the change_summary
+    """
+    # Priority 1: use bug_type stored directly on the fix record
+    if getattr(fix, 'bug_type', '') and fix.bug_type not in ('', 'unknown'):
+        return fix.bug_type
+
+    fix_file = _normalize_for_match(fix.file)
+    # Priority 2: Exact match on normalized file + line
+    for failure in memory.failures:
+        if failure.file != 'unknown' and _normalize_for_match(failure.file) == fix_file and failure.line == fix.line:
+            return failure.bug_type
+    # Priority 3: same file, any line
+    for failure in memory.failures:
+        if failure.file != 'unknown' and _normalize_for_match(failure.file) == fix_file:
+            return failure.bug_type
+    # Priority 4: basename match
+    from pathlib import Path as _Path
+    fix_basename = _Path(fix_file).name
+    for failure in memory.failures:
+        if failure.file != 'unknown' and _Path(failure.file).name == fix_basename and failure.line == fix.line:
+            return failure.bug_type
+    for failure in memory.failures:
+        if failure.file != 'unknown' and _Path(failure.file).name == fix_basename:
+            return failure.bug_type
+
+    # Priority 5: infer from change_summary text
+    return _infer_bug_type_from_text(fix.change_summary)
+
+
 def _infer_failure_message(fix, memory: RunMemory) -> str:
-    """Match a fix back to its failure record to extract the original message."""
+    """Match a fix back to its failure record to extract the original message.
+
+    Priority:
+      1. Direct failure_message stored on FixRecord
+      2. Exact file + line match against failure records
+      3. Same file match against failure records
+      4. Basename match against failure records
+      5. Fall back to the change_summary as the message
+    """
+    # Priority 1: use failure_message stored directly on the fix record
+    if getattr(fix, 'failure_message', '') and fix.failure_message:
+        return fix.failure_message
+
     fix_file = _normalize_for_match(fix.file)
     for failure in memory.failures:
-        if _normalize_for_match(failure.file) == fix_file and failure.line == fix.line:
+        if failure.file != 'unknown' and _normalize_for_match(failure.file) == fix_file and failure.line == fix.line:
             return failure.standardized_message
     for failure in memory.failures:
-        if _normalize_for_match(failure.file) == fix_file:
+        if failure.file != 'unknown' and _normalize_for_match(failure.file) == fix_file:
             return failure.standardized_message
     # Fallback: basename match
     from pathlib import Path as _Path
     fix_basename = _Path(fix_file).name
     for failure in memory.failures:
-        if _Path(failure.file).name == fix_basename and failure.line == fix.line:
+        if failure.file != 'unknown' and _Path(failure.file).name == fix_basename and failure.line == fix.line:
             return failure.standardized_message
     for failure in memory.failures:
-        if _Path(failure.file).name == fix_basename:
+        if failure.file != 'unknown' and _Path(failure.file).name == fix_basename:
             return failure.standardized_message
+
+    # Priority 5: fall back to change_summary
+    if fix.change_summary:
+        return fix.change_summary
     return ""
 
 
